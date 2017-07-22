@@ -1,0 +1,22 @@
+{
+  "name": "realtime-server",
+  "description": "Realtime server (node)",
+  "version": "0.0.1",
+  "main": "src/index.js",
+  "authors": [
+    "Miguel del Mazo <info@migueldelmazo.com>"
+  ],
+  "license": "Apach(MIT OR Apache-2.0)",
+  "scripts": {
+    "dev": "nodemon ./examples/index.js",
+    "lint": "./node_modules/.bin/eslint ./**/*.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "eslint": "^4.3.0"
+  }
+}
