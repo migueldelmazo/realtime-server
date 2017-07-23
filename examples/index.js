@@ -5,8 +5,4 @@ const realtimeServer = require('../src'),
 
 user.addLogin()
 
-realtimeServer.logActions()
-realtimeServer.logMethods()
-realtimeServer.logEndpoints()
-
 realtimeServer.start('8080')

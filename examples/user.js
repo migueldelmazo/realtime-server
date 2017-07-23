@@ -4,14 +4,14 @@ module.exports = {
 
   addLogin () {
 
-    realtimeServer.addAction({
+    realtimeServer.registerTask({
       name: 'user.responseLogin',
-      run (endpoint, action, result) {
+      run () {
         const startTime = Date.now()
         return new Promise((resolve, reject) => {
           setTimeout(() => {
             const endTime = Date.now()
-            endpoint.res.send({
+            this.res.send({
               logged: true,
               startTime,
               endTime,
@@ -22,10 +22,10 @@ module.exports = {
       }
     })
 
-    realtimeServer.addEnpoint({
+    realtimeServer.registerEnpoint({
       method: 'get',
       url: '/user/login',
-      actions: [
+      tasks: [
         { name: 'user.responseLogin' }
       ]
     })
