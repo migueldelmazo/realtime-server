@@ -5,6 +5,13 @@ module.exports = {
   addLogin () {
 
     realtimeServer.registerTask({
+      name: 'validate',
+      run () {
+        return 123
+      }
+    })
+
+    realtimeServer.registerTask({
       name: 'user.responseLogin',
       run () {
         const startTime = Date.now()
@@ -17,7 +24,8 @@ module.exports = {
               endTime,
               duration: endTime - startTime
             }).status(200)
-          }, 2000)
+            resolve()
+          }, 500)
         })
       }
     })
@@ -26,7 +34,18 @@ module.exports = {
       method: 'get',
       url: '/user/login',
       tasks: [
-        { name: 'user.responseLogin' }
+        {
+          name: 'request.getData'
+        },
+        {
+          name: 'validate',
+          params: [
+            '{{reqData.query.email}}'
+          ]
+        },
+        {
+          name: 'user.responseLogin'
+        }
       ]
     })
   }

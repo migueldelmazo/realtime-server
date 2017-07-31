@@ -24,6 +24,14 @@ const _ = require('lodash'),
     endpointList[endpoint.method + ':' + endpoint.url] = endpoint
   },
 
+  endpointCatch = (request) => {
+    logger.log('request error', _.omit(request, ['req', 'res']))
+  },
+
+  endpointThen = (request) => {
+    logger.log('request', _.omit(request, ['req', 'res']))
+  },
+
   // methods
 
   methodList = {},
@@ -32,41 +40,26 @@ const _ = require('lodash'),
     return _.isString(name) && _.isFunction(func)
   },
 
-  // req
+  // promise
 
-  requestGetData = (req) => {
-    return {
-      body: req.body || {},
-      params: req.params,
-      query: req.query
-    }
-  },
-
-  requestParse = (req, res, endpoint) => {
-    return {
-      endpoint,
-      payload: {},
-      reqData: requestGetData(req),
-      res
-    }
+  promiseGet = (request) => {
+    let promise = new Promise((resolve) => resolve())
+    _.each(request.endpoint.tasks, (task) => {
+      if (task.catch) {
+        promise = promise.catch(taskCatch.bind(null, request, task))
+      } else {
+        promise = promise.then(taskThenStart.bind(null, request, task))
+        promise = promise.then(taskThenEnd.bind(null, request, task))
+      }
+    })
+    promise = promise.then(endpointThen.bind(null, request))
+    promise = promise.catch(endpointCatch.bind(null, request))
+    return promise
   },
 
   // tasks
 
   taskList = {},
-
-  taskGetPromise = (request) => {
-    let promise = new Promise((resolve) => resolve())
-    _.each(request.endpoint.tasks, (task) => {
-      promise = promise.then(taskHandler.bind(null, request, task))
-    })
-    return promise
-  },
-
-  taskHandler = (request, task) => {
-    request.currentTask = task
-    task.run.call(request)
-  },
 
   taskIsValid = (task) => {
     return !_.isEmpty(task) && _.isString(task.name)
@@ -74,12 +67,42 @@ const _ = require('lodash'),
 
   tasksParse = (tasks) => {
     return _.map(tasks, (task) => {
-      if (_.isEmpty(taskList[task.name])) {
-        return task
-      } else {
-        return _.defaults(task, taskList[task.name])
-      }
+      return _.isEmpty(taskList[task.name])
+        ? task
+        : _.defaults(task, taskList[task.name])
     })
+  },
+
+  taskThenStart = (request, task) => {
+    request.currentTask = task
+    task.parsedParams = taskParseParams(request, task)
+    return task.run.apply(request, task.parsedParams)
+  },
+
+  taskThenEnd = (request, task, result) => {
+    taskSetResult(request, task, result)
+    request.currentTask = undefined
+  },
+
+  taskCatch = (request, task) => {
+    logger.log('request error', _.omit(request, ['req', 'res']))
+  },
+
+  taskParseParams = (request, task) => {
+    return _.map(task.params, (param) => {
+      const regex = new RegExp(/{{[a-zA-Z_.]*}}/g)
+      return _.reduce(param.match(regex), (memo, match) => {
+        const path = match.substr(2, match.length - 4)
+        return memo.replace(match, _.get(request, path))
+      }, param)
+    })
+  },
+
+  taskSetResult = (request, task, result) => {
+    task.result = result
+    if (task.resultPath) {
+      _.set(request, task.resultPath, result)
+    }
   }
 
 module.exports = {
@@ -93,7 +116,7 @@ module.exports = {
       logger.log('endpoints', endpointList)
       logger.log('methods', methodList)
       logger.log('tasks', taskList)
-      logger.log('express start:', port)
+      logger.log('express start', port)
     })
   },
 
@@ -104,8 +127,7 @@ module.exports = {
       const parsedEndpoint = endpointParse(endpoint)
       parsedEndpoint.tasks = tasksParse(endpoint.tasks)
       app[endpoint.method](endpoint.url, (req, res) => {
-        const request = requestParse(req, res, endpoint)
-        taskGetPromise(request).then(() => {})
+        promiseGet({ req, res, endpoint }).then(() => {})
       })
       endpointRegister(endpoint)
     } else {
