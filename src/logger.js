@@ -3,11 +3,11 @@ const util = require('util')
 module.exports = {
 
   err (...args) {
-    console.log('ERR', JSON.stringify(args[0]), JSON.stringify(args[1]));
+    console.error('ERR', args)
   },
 
   log (...args) {
-    console.log('LOG', JSON.stringify(args[0]), JSON.stringify(args[1]));
+    console.log('LOG', args)
   }
 
 }

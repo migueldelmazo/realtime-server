@@ -24,12 +24,12 @@ const _ = require('lodash'),
     endpointList[endpoint.method + ':' + endpoint.url] = endpoint
   },
 
-  endpointCatch = (request) => {
-    logger.log('request error', _.omit(request, ['req', 'res']))
+  endpointCatch = (payload, err) => {
+    logger.err('payload error', err)
   },
 
-  endpointThen = (request) => {
-    logger.log('request', _.omit(request, ['req', 'res']))
+  endpointThen = (payload) => {
+    logger.log('payload', _.omit(payload, ['req', 'res']))
   },
 
   // methods
@@ -42,18 +42,19 @@ const _ = require('lodash'),
 
   // promise
 
-  promiseGet = (request) => {
+  promiseGet = (payload) => {
     let promise = new Promise((resolve) => resolve())
-    _.each(request.endpoint.tasks, (task) => {
+    _.each(payload.endpoint.tasks, (task) => {
       if (task.catch) {
-        promise = promise.catch(taskCatch.bind(null, request, task))
+        promise = promise.catch(taskCatchStart.bind(null, payload, task))
+        promise = promise.then(taskCatchEnd.bind(null, payload, task))
       } else {
-        promise = promise.then(taskThenStart.bind(null, request, task))
-        promise = promise.then(taskThenEnd.bind(null, request, task))
+        promise = promise.then(taskThenStart.bind(null, payload, task))
+        promise = promise.then(taskThenEnd.bind(null, payload, task))
       }
     })
-    promise = promise.then(endpointThen.bind(null, request))
-    promise = promise.catch(endpointCatch.bind(null, request))
+    promise = promise.then(endpointThen.bind(null, payload))
+    promise = promise.catch(endpointCatch.bind(null, payload))
     return promise
   },
 
@@ -73,36 +74,72 @@ const _ = require('lodash'),
     })
   },
 
-  taskThenStart = (request, task) => {
-    request.currentTask = task
-    task.parsedParams = taskParseParams(request, task)
-    return task.run.apply(request, task.parsedParams)
+  taskCatchStart = (payload, task, result) => {
+    taskSetResult(payload, result)
+    taskSetStatus(payload, 'rejected')
+    taskSetCurrent(payload, task)
+    taskSetStatus(payload, 'solving')
+    return taskRun(payload, result)
   },
 
-  taskThenEnd = (request, task, result) => {
-    taskSetResult(request, task, result)
-    request.currentTask = undefined
+  taskCatchEnd = (payload, task, result) => {
+    if (taskIsCurrent(payload, task)) {
+      taskSetResult(payload, result)
+      taskSetStatus(payload, 'rejected')
+      taskSetCurrent(payload)
+    }
   },
 
-  taskCatch = (request, task) => {
-    logger.log('request error', _.omit(request, ['req', 'res']))
+  taskThenStart = (payload, task) => {
+    taskSetCurrent(payload, task)
+    taskSetStatus(payload, 'solving')
+    return taskRun(payload)
   },
 
-  taskParseParams = (request, task) => {
-    return _.map(task.params, (param) => {
-      const regex = new RegExp(/{{[a-zA-Z_.]*}}/g)
-      return _.reduce(param.match(regex), (memo, match) => {
+  taskThenEnd = (payload, task, result) => {
+    if (taskIsCurrent(payload, task)) {
+      taskSetResult(payload, result)
+      taskSetStatus(payload, 'solved')
+      taskSetCurrent(payload)
+    }
+  },
+
+  taskIsCurrent = (payload, task) => {
+    return payload.currentTask === task
+  },
+
+  taskParseParams = (payload) => {
+    return _.map(payload.currentTask.params, (param) => {
+      const regex = new RegExp(/{{[a-zA-Z_.]*}}/g),
+        paramMatches = param.match(regex)
+      return _.reduce(paramMatches, (memo, match) => {
         const path = match.substr(2, match.length - 4)
-        return memo.replace(match, _.get(request, path))
+        return memo.replace(match, _.get(payload, path))
       }, param)
     })
   },
 
-  taskSetResult = (request, task, result) => {
-    task.result = result
-    if (task.resultPath) {
-      _.set(request, task.resultPath, result)
+  taskSetCurrent = (payload, task) => {
+    payload.currentTask = task
+  },
+
+  taskSetStatus = (payload, status) => {
+    payload.currentTask.status = status
+  },
+
+  taskSetResult = (payload, result) => {
+    result = _.cloneDeep(result)
+    payload.currentTask.result = result
+    if (payload.currentTask.resultPath) {
+      _.set(payload, payload.currentTask.resultPath, result)
     }
+  },
+
+  taskRun = (payload, ...args) => {
+    const parsedParams = taskParseParams(payload),
+      methodParams = [].concat(args, parsedParams)
+    payload.currentTask.parsedParams = parsedParams
+    return payload.currentTask.run.apply(payload, methodParams)
   }
 
 module.exports = {
@@ -143,6 +180,10 @@ module.exports = {
     } else {
       logger.err('invalid method', name, func)
     }
+  },
+
+  runMethod (methodName, params) {
+    return methodList[methodName].apply(null, params)
   },
 
   // task

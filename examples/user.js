@@ -5,26 +5,22 @@ module.exports = {
   addLogin () {
 
     realtimeServer.registerTask({
-      name: 'validate',
-      run () {
-        return 123
-      }
-    })
-
-    realtimeServer.registerTask({
       name: 'user.responseLogin',
+      resultPath: 'resData',
       run () {
         const startTime = Date.now()
         return new Promise((resolve, reject) => {
           setTimeout(() => {
             const endTime = Date.now()
-            this.res.send({
-              logged: true,
-              startTime,
-              endTime,
-              duration: endTime - startTime
-            }).status(200)
-            resolve()
+            resolve({
+              body: {
+                logged: true,
+                startTime,
+                endTime,
+                duration: endTime - startTime
+              },
+              status: 200
+            })
           }, 500)
         })
       }
@@ -41,11 +37,12 @@ module.exports = {
           name: 'validate',
           params: [
             '{{reqData.query.email}}'
-          ]
+          ],
+          validator: 'validate.isEmail'
         },
-        {
-          name: 'user.responseLogin'
-        }
+        { name: 'user.responseLogin' },
+        { name: 'response.handleError' },
+        { name: 'response.sendData' }
       ]
     })
   }
