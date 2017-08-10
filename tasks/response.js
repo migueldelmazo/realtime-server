@@ -1,5 +1,5 @@
 const _ = require('lodash'),
-  realtimeServer = require('./index')
+  realtimeServer = require('../src/index')
 
 module.exports = {
 

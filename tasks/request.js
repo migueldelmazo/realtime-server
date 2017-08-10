@@ -1,4 +1,4 @@
-const realtimeServer = require('./index')
+const realtimeServer = require('../src/index')
 
 module.exports = {
 

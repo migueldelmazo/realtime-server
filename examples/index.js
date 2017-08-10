@@ -2,9 +2,9 @@ process.stdout.write('\033c')
 
 const http = require('http'),
   realtimeServer = require('../src'),
-  realtimeServerResquestTasks = require('../src/request-tasks'),
-  realtimeServerResponseTasks = require('../src/response-tasks'),
-  validateTasks = require('../src/validate-tasks'),
+  realtimeServerResquestTasks = require('../tasks/request'),
+  realtimeServerResponseTasks = require('../tasks/response'),
+  validateTasks = require('../tasks/validate'),
   user = require('./user')
 
 // common
@@ -13,16 +13,17 @@ realtimeServerResponseTasks.registerTasks()
 validateTasks.registerMethods()
 validateTasks.registerTasks()
 
-// app
+// endpoints
 user.addLogin()
 
-realtimeServer.start('8080')
+// app
+realtimeServer.start('8090')
 
 setTimeout(() => {
   http.request({
     hostname: 'localhost',
     method: 'get',
-    port: '8080',
+    port: '8090',
     path: '/user/login?email=info@migueldelmazo.com'
   }).end()
 }, 500)
