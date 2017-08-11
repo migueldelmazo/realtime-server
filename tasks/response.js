@@ -15,7 +15,7 @@ module.exports = {
 
     realtimeServer.registerTask({
       name: 'response.handleError',
-      catch: true,
+      promiseCatch: true,
       resultPath: 'resData',
       run (err) {
         return {

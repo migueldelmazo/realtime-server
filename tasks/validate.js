@@ -22,7 +22,6 @@ module.exports = {
           if (isValid) {
             resolve()
           } else {
-            debugger;
             reject({
               reason: 'validate',
               status: 403

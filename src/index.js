@@ -50,12 +50,12 @@ module.exports = {
 
   // endpoints
 
-  registerEnpoint (endpoint) {
-    if (endpointIsValid(endpoint)) {
-      const parsedEndpoint = endpointParse(endpoint)
-      parsedEndpoint.tasks = tasks.parseTasks(endpoint.tasks)
+  registerEnpoint (_endpoint) {
+    if (endpointIsValid(_endpoint)) {
+      const endpoint = endpointParse(_endpoint)
+      endpoint.tasks = tasks.parseTasks(_endpoint.tasks)
       app[endpoint.method](endpoint.url, (req, res) => {
-        tasks.getPromise({ req, res, endpoint }).then(() => {})
+        tasks.getPromise(endpoint.tasks, { req, res, endpoint }).then(() => {})
       })
       endpointRegister(endpoint)
     } else {
