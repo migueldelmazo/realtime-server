@@ -43,6 +43,50 @@ const _ = require('lodash'),
     logger.log('payload', _.omit(payload, ['req', 'res']))
   },
 
+  // run
+
+  runTask = (payload, ...args) => {
+    const parsedParams = runTaskGetParams(payload),
+      methodParams = [].concat(args, parsedParams)
+    payload.currentTask.parsedParams = parsedParams
+    return payload.currentTask.run.apply(payload, methodParams)
+  },
+
+  runTaskGetParams = (payload) => {
+    return _.map(payload.currentTask.params, runTaskGetParamValue.bind(null, payload))
+  },
+
+  runTaskGetParamValue = (payload, param) => {
+    if (_.isArray(param)) {
+      return runTaskGetParamArray(payload, param)
+    } else if (_.isPlainObject(param)) {
+      return runTaskGetParamObject(payload, param)
+    } else if (_.isString(param)) {
+      return runTaskGetParamString(payload, param)
+    }
+    return param
+  },
+
+  runTaskGetParamArray = (payload, param) => {
+    return _.map(param, runTaskGetParamValue.bind(null, payload))
+  },
+
+  runTaskGetParamObject = (payload, param) => {
+    return _.reduce(param, (memo, value, key) => {
+      memo[key] = runTaskGetParamValue(payload, value)
+      return memo
+    }, {})
+  },
+
+  runTaskGetParamString = (payload, param) => {
+    const regex = new RegExp(/{{[a-zA-Z_.]*}}/g),
+      paramMatches = param.match(regex)
+    return _.reduce(paramMatches, (memo, match) => {
+      const path = match.substr(2, match.length - 4)
+      return memo.replace(match, _.get(payload, path))
+    }, param)
+  },
+
   // helpers
 
   isCurrentTask = (payload, task) => {
@@ -67,28 +111,6 @@ const _ = require('lodash'),
     if (payload.currentTask.resultPath) {
       _.set(payload, payload.currentTask.resultPath, result)
     }
-  },
-
-  runTask = (payload, ...args) => {
-    const parsedParams = runTaskGetParams(payload),
-      methodParams = [].concat(args, parsedParams)
-    payload.currentTask.parsedParams = parsedParams
-    return payload.currentTask.run.apply(payload, methodParams)
-  },
-
-  runTaskGetParams = (payload) => {
-    return _.map(payload.currentTask.params, (param) => {
-      return _.isString(param) ? runTaskGetParamsString(payload, param) : param
-    })
-  },
-
-  runTaskGetParamsString = (payload, param) => {
-    const regex = new RegExp(/{{[a-zA-Z_.]*}}/g),
-      paramMatches = param.match(regex)
-    return _.reduce(paramMatches, (memo, match) => {
-      const path = match.substr(2, match.length - 4)
-      return memo.replace(match, _.get(payload, path))
-    }, param)
   }
 
 module.exports = {
