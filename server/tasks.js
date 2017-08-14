@@ -78,13 +78,17 @@ const _ = require('lodash'),
 
   runTaskGetParams = (payload) => {
     return _.map(payload.currentTask.params, (param) => {
-      const regex = new RegExp(/{{[a-zA-Z_.]*}}/g),
-        paramMatches = param.match(regex)
-      return _.reduce(paramMatches, (memo, match) => {
-        const path = match.substr(2, match.length - 4)
-        return memo.replace(match, _.get(payload, path))
-      }, param)
+      return _.isString(param) ? runTaskGetParamsString(payload, param) : param
     })
+  },
+
+  runTaskGetParamsString = (payload, param) => {
+    const regex = new RegExp(/{{[a-zA-Z_.]*}}/g),
+      paramMatches = param.match(regex)
+    return _.reduce(paramMatches, (memo, match) => {
+      const path = match.substr(2, match.length - 4)
+      return memo.replace(match, _.get(payload, path))
+    }, param)
   }
 
 module.exports = {
