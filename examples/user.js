@@ -35,6 +35,15 @@ module.exports = {
         },
         {
           name: 'validate',
+          description: 'Email can not be empty',
+          params: [
+            '{{reqData.query.email}}'
+          ],
+          validator: 'validate.isNotEmpty'
+        },
+        {
+          name: 'validate',
+          description: 'The email is not in the correct format',
           params: [
             '{{reqData.query.email}}'
           ],

@@ -20,8 +20,8 @@ module.exports = {
       run (err) {
         return {
           body: {
-            debug: _.omit(this, ['req', 'res']),
-            reason: _.get(err, 'reason', '')
+            error: _.get(err, 'error', {}),
+            debug: _.omit(this, ['req', 'res'])
           },
           status: _.get(err, 'status', 200)
         }

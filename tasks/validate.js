@@ -8,7 +8,7 @@ module.exports = {
       return value === 'info@migueldelmazo.com'
     })
 
-    realtimeServer.registerMethod('isNotEmpty', (value) => {
+    realtimeServer.registerMethod('validate.isNotEmpty', (value) => {
       return !_.isEmpty(value)
     })
   },
@@ -23,7 +23,10 @@ module.exports = {
             resolve()
           } else {
             reject({
-              reason: 'validate',
+              error: {
+                code: 'validate',
+                description: _.get(this, 'currentTask.description', '')
+              },
               status: 403
             })
           }
