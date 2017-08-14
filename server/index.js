@@ -42,17 +42,17 @@ const _ = require('lodash'),
   },
 
   serverStatic = (config) => {
-    if (config.staticDir) {
-      app.use(express.static(path.join(__dirname, '../', config.staticDir)));
+    if (config.serverStaticDir) {
+      app.use(express.static(path.join(__dirname, '../', config.serverStaticDir)));
     }
   },
 
-  serverInit = (config) => {
-    app.listen(config.port, () => {
+  serverStart = (config) => {
+    app.listen(config.serverPort, () => {
       logger.log('endpoints', endpointList)
       logger.log('methods', methodList)
       logger.log('tasks', tasks.taskList)
-      logger.log('express start', config.port)
+      logger.log('express start', config.serverPort)
     })
   }
 
@@ -63,7 +63,7 @@ module.exports = {
   start (config) {
     serverBodyParser()
     serverStatic(config)
-    serverInit(config)
+    serverStart(config)
   },
 
   // endpoints

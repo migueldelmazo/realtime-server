@@ -51,7 +51,11 @@ module.exports = {
         },
         { name: 'user.responseLogin' },
         { name: 'response.handleError' },
-        { name: 'response.sendData' }
+        { name: 'response.sendData' },
+        {
+          name: 'realtime.send',
+          params: ['user logged']
+        }
       ]
     })
   }

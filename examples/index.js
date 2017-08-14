@@ -1,25 +1,33 @@
 process.stdout.write('\033c')
 
 const http = require('http'),
+  realtime = require('../realtime'),
   server = require('../server'),
+  serverRealtimeTasks = require('../server-tasks/realtime'),
   serverResquestTasks = require('../server-tasks/request'),
   serverResponseTasks = require('../server-tasks/response'),
   validateTasks = require('../server-tasks/validate'),
   user = require('./user')
 
-// common
+// server common
+serverRealtimeTasks.registerTasks()
 serverResquestTasks.registerTasks()
 serverResponseTasks.registerTasks()
 validateTasks.registerMethods()
 validateTasks.registerTasks()
 
-// endpoints
+// server endpoints
 user.addLogin()
 
-// app
+// realtime
+realtime.start({
+  socketPort: '8091'
+})
+
+// server
 server.start({
-  port: '8090',
-  staticDir: 'public'
+  serverPort: '8090',
+  serverStaticDir: 'public'
 })
 
 setTimeout(() => {
