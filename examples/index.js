@@ -17,7 +17,10 @@ validateTasks.registerTasks()
 user.addLogin()
 
 // app
-realtimeServer.start('8090')
+realtimeServer.start({
+  port: '8090',
+  staticDir: 'public'
+})
 
 setTimeout(() => {
   http.request({

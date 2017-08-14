@@ -1,6 +1,7 @@
 const _ = require('lodash'),
   bodyParser = require('body-parser'),
   express = require('express'),
+  path = require('path'),
   logger = require('./logger'),
   tasks = require('./tasks'),
   app = express(),
@@ -31,21 +32,38 @@ const _ = require('lodash'),
 
   methodIsValid = (name, func) => {
     return _.isString(name) && _.isFunction(func)
+  },
+
+  // server
+
+  serverBodyParser = (app) => {
+    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.json());
+  },
+
+  serverStatic = (app, config) => {
+    if (config.staticDir) {
+      app.use(express.static(path.join(__dirname, '../', config.staticDir)));
+    }
+  },
+
+  serverInit = (app, config) => {
+    app.listen(config.port, () => {
+      logger.log('endpoints', endpointList)
+      logger.log('methods', methodList)
+      logger.log('tasks', tasks.taskList)
+      logger.log('express start', config.port)
+    })
   }
 
 module.exports = {
 
   // express
 
-  start (port) {
-    app.use(bodyParser.urlencoded({ extended: false }));
-    app.use(bodyParser.json());
-    app.listen(port, () => {
-      logger.log('endpoints', endpointList)
-      logger.log('methods', methodList)
-      logger.log('tasks', tasks.taskList)
-      logger.log('express start', port)
-    })
+  start (config) {
+    serverBodyParser(app)
+    serverStatic(app, config)
+    serverInit(app, config)
   },
 
   // endpoints
