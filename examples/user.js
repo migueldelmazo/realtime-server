@@ -1,10 +1,10 @@
-const realtimeServer = require('../src')
+const server = require('../server')
 
 module.exports = {
 
   addLogin () {
 
-    realtimeServer.registerTask({
+    server.registerTask({
       name: 'user.responseLogin',
       resultPath: 'resData',
       run () {
@@ -26,7 +26,7 @@ module.exports = {
       }
     })
 
-    realtimeServer.registerEnpoint({
+    server.registerEnpoint({
       method: 'get',
       url: '/user/login',
       tasks: [

@@ -1,9 +1,9 @@
-const realtimeServer = require('../src/index')
+const server = require('../server')
 
 module.exports = {
 
   registerTasks () {
-    realtimeServer.registerTask({
+    server.registerTask({
       name: 'request.getData',
       resultPath: 'reqData',
       run () {

@@ -1,10 +1,10 @@
 const _ = require('lodash'),
-  realtimeServer = require('../src/index')
+  server = require('../server')
 
 module.exports = {
 
   registerTasks () {
-    realtimeServer.registerTask({
+    server.registerTask({
       name: 'response.sendData',
       run () {
         const body = _.get(this, 'resData.body', {}),
@@ -13,7 +13,7 @@ module.exports = {
       }
     })
 
-    realtimeServer.registerTask({
+    server.registerTask({
       name: 'response.handleError',
       promiseCatch: true,
       resultPath: 'resData',

@@ -36,18 +36,18 @@ const _ = require('lodash'),
 
   // server
 
-  serverBodyParser = (app) => {
+  serverBodyParser = () => {
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
   },
 
-  serverStatic = (app, config) => {
+  serverStatic = (config) => {
     if (config.staticDir) {
       app.use(express.static(path.join(__dirname, '../', config.staticDir)));
     }
   },
 
-  serverInit = (app, config) => {
+  serverInit = (config) => {
     app.listen(config.port, () => {
       logger.log('endpoints', endpointList)
       logger.log('methods', methodList)
@@ -61,9 +61,9 @@ module.exports = {
   // express
 
   start (config) {
-    serverBodyParser(app)
-    serverStatic(app, config)
-    serverInit(app, config)
+    serverBodyParser()
+    serverStatic(config)
+    serverInit(config)
   },
 
   // endpoints

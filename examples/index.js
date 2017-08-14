@@ -1,15 +1,15 @@
 process.stdout.write('\033c')
 
 const http = require('http'),
-  realtimeServer = require('../src'),
-  realtimeServerResquestTasks = require('../tasks/request'),
-  realtimeServerResponseTasks = require('../tasks/response'),
-  validateTasks = require('../tasks/validate'),
+  server = require('../server'),
+  serverResquestTasks = require('../server-tasks/request'),
+  serverResponseTasks = require('../server-tasks/response'),
+  validateTasks = require('../server-tasks/validate'),
   user = require('./user')
 
 // common
-realtimeServerResquestTasks.registerTasks()
-realtimeServerResponseTasks.registerTasks()
+serverResquestTasks.registerTasks()
+serverResponseTasks.registerTasks()
 validateTasks.registerMethods()
 validateTasks.registerTasks()
 
@@ -17,7 +17,7 @@ validateTasks.registerTasks()
 user.addLogin()
 
 // app
-realtimeServer.start({
+server.start({
   port: '8090',
   staticDir: 'public'
 })
