@@ -2,12 +2,12 @@ const _ = require('lodash')
 
 _.mixin({
 
-  parseArray: function (arr) {
+  parseArray (arr) {
     arr = arr || []
     return _.isArray(arr) ? arr : [arr]
   },
 
-  stack: function (removeLevels = 1) {
+  stack (removeLevels = 1) {
     const stack = new Error().stack,
       stackArr = stack.split('\n')
     removeLevels = removeLevels || 1
@@ -15,7 +15,7 @@ _.mixin({
     return stackArr.join('')
   },
 
-  stringify: function (obj) {
+  stringify (obj) {
     const cache = []
     return JSON.stringify(obj, function (key, value) {
       if (_.isString(value) || _.isNumber(value) || _.isBoolean(value)) {
