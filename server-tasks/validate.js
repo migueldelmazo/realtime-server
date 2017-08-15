@@ -18,14 +18,14 @@ module.exports = {
       name: 'validate',
       run () {
         return new Promise((resolve, reject) => {
-          const isValid = server.runMethod(this.currentTask.validator, arguments)
+          const isValid = server.runMethod(this.tasks.current.validator, arguments)
           if (isValid) {
             resolve()
           } else {
             reject({
               error: {
                 code: 'validate',
-                description: _.get(this, 'currentTask.description', '')
+                description: _.get(this, 'tasks.current.description', '')
               },
               status: 403
             })

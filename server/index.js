@@ -73,7 +73,11 @@ module.exports = {
       const endpoint = endpointParse(_endpoint)
       endpoint.tasks = tasks.parseTasks(_endpoint.tasks)
       app[endpoint.method](endpoint.url, (req, res) => {
-        tasks.getPromise(endpoint.tasks, { req, res, endpoint }).then(() => {})
+        tasks.getPromise(endpoint.tasks, {
+          endpoint: _.omit(endpoint, ['tasks']),
+          req,
+          res
+        }).then(() => {})
       })
       endpointRegister(endpoint)
     } else {

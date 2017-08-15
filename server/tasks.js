@@ -50,12 +50,12 @@ const _ = require('lodash'),
   runTask = (payload, ...args) => {
     const parsedParams = runTaskGetParams(payload),
       methodParams = [].concat(args, parsedParams)
-    payload.currentTask.parsedParams = parsedParams
-    return payload.currentTask.run.apply(payload, methodParams)
+    payload.tasks.current.parsedParams = parsedParams
+    return payload.tasks.current.run.apply(payload, methodParams)
   },
 
   runTaskGetParams = (payload) => {
-    return _.map(payload.currentTask.params, runTaskGetParamValue.bind(null, payload))
+    return _.map(payload.tasks.current.params, runTaskGetParamValue.bind(null, payload))
   },
 
   runTaskGetParamValue = (payload, param) => {
@@ -91,14 +91,18 @@ const _ = require('lodash'),
 
   // helpers
 
+  parsePayload = (payload, tasks) => {
+    payload.tasks = { tasks }
+  },
+
   checkError = (payload, err) => {
-    if (_.isError(err) && payload.currentTask) {
-      payload.currentTask.err = err
+    if (_.isError(err) && payload.tasks.current) {
+      payload.tasks.current.err = err
     }
   }
 
   isCurrentTask = (payload, task) => {
-    return payload.currentTask === task
+    return payload.tasks.current === task
   },
 
   isValidTask = (task) => {
@@ -106,18 +110,18 @@ const _ = require('lodash'),
   },
 
   setCurrentTask = (payload, task) => {
-    payload.currentTask = task
+    payload.tasks.current = task
   },
 
   setStatusTask = (payload, status) => {
-    payload.currentTask.status = status
+    payload.tasks.current.status = status
   },
 
   setResultTask = (payload, result) => {
     result = _.cloneDeep(result)
-    payload.currentTask.result = result
-    if (payload.currentTask.resultPath) {
-      _.set(payload, payload.currentTask.resultPath, result)
+    payload.tasks.current.result = result
+    if (payload.tasks.current.resultPath) {
+      _.set(payload, payload.tasks.current.resultPath, result)
     }
   }
 
@@ -127,6 +131,7 @@ module.exports = {
 
   getPromise (tasks, payload = {}) {
     let promise = new Promise((resolve) => resolve())
+    parsePayload(payload, tasks)
     _.each(tasks, (task) => {
       if (task.promiseCatch) {
         promise = promise.catch(taskCatchStart.bind(null, payload, task))

@@ -39,7 +39,7 @@ module.exports = {
         },
         {
           name: 'utils.set',
-          params: ['resData.status', '200']
+          params: ['resData.status', 200]
         },
         {
           name: 'response.handleError'
