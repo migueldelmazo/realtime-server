@@ -55,7 +55,8 @@ const _ = require('lodash'),
   },
 
   runTaskGetParams = (payload) => {
-    return _.map(payload.tasks.current.params, runTaskGetParamValue.bind(null, payload))
+    const params = _.parseArray(payload.tasks.current.params)
+    return _.map(params, runTaskGetParamValue.bind(null, payload))
   },
 
   runTaskGetParamValue = (payload, param) => {

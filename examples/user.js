@@ -13,29 +13,29 @@ module.exports = {
         {
           name: 'validate',
           description: 'Email can not be empty',
-          params: ['{{reqData.query.email}}'],
+          params: '{{reqData.query.email}}',
           validator: 'validate.isNotEmpty'
         },
         {
           name: 'validate',
           description: 'The email is not in the correct format',
-          params: ['{{reqData.query.email}}'],
+          params: '{{reqData.query.email}}',
           validator: 'validate.isEmail'
         },
         {
           name: 'validate',
           description: 'Password can not be empty',
-          params: ['{{reqData.query.password}}'],
+          params: '{{reqData.query.password}}',
           validator: 'validate.isNotEmpty'
         },
         {
           name: 'mysql.query',
-          params: ['SELECT * FROM users WHERE email="{{reqData.query.email}}" AND password="{{reqData.query.password}}"'],
+          params: 'SELECT * FROM users WHERE email="{{reqData.query.email}}" AND password="{{reqData.query.password}}"',
           resultPath: 'user'
         },
         {
           name: 'utils.copy',
-          params: [{ 'resData.body': 'user' }]
+          params: { 'resData.body': 'user' }
         },
         {
           name: 'utils.set',
@@ -49,7 +49,7 @@ module.exports = {
         },
         {
           name: 'realtime.send',
-          params: ['user logged']
+          params: 'user logged'
         }
       ]
     })
