@@ -27,6 +27,7 @@ const _ = require('lodash'),
       _.each(clients, (client, clientId) => {
         send(clientId, req.body)
       })
+      res.status(200).send({})
     })
   },
 

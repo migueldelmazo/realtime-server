@@ -1,12 +1,11 @@
 const _ = require('lodash'),
   logger = require('./logger'),
-
-  taskList = {},
+  methods = require('./methods'),
 
   // promise handlers
 
   taskCatchStart = (payload, task, result) => {
-    checkError(payload, result)
+    setRejectedError(payload, result)
     setResultTask(payload, result)
     setStatusTask(payload, 'rejected')
     setCurrentTask(payload, task)
@@ -51,7 +50,7 @@ const _ = require('lodash'),
     const parsedParams = runTaskGetParams(payload),
       methodParams = [].concat(args, parsedParams)
     payload.tasks.current.parsedParams = parsedParams
-    return payload.tasks.current.run.apply(payload, methodParams)
+    return methods.run.call(payload, payload.tasks.current.run, ...methodParams)
   },
 
   runTaskGetParams = (payload) => {
@@ -72,27 +71,25 @@ const _ = require('lodash'),
 
   // helpers
 
-  parsePayload = (payload, tasks) => {
-    payload.tasks = { tasks }
-  },
-
-  checkError = (payload, err) => {
-    if (_.isError(err)) {
-      payload.tasks.errors = _.parseArray(payload.tasks.errors)
-      payload.tasks.errors.push({
-        current: _.cloneDeep(payload.tasks.current),
-        errorMessage: err.message,
-        errorStack: _.stack()
-      })
-    }
-  },
-
   isCurrentTask = (payload, task) => {
     return payload.tasks.current === task
   },
 
   isValidTask = (task) => {
     return !_.isEmpty(task) && _.isString(task.name)
+  },
+
+  parsePayload = (payload, tasks) => {
+    payload = payload || {}
+    payload.tasks = parseTasks(tasks)
+  },
+
+  parseTasks = (tasks) => {
+    return _.map(tasks, (task) => {
+      return _.isEmpty(list[task.name])
+        ? task
+        : _.defaults(task, list[task.name])
+    })
   },
 
   setCurrentTask = (payload, task) => {
@@ -103,22 +100,35 @@ const _ = require('lodash'),
     payload.tasks.current.status = status
   },
 
+  setRejectedError = (payload, err) => {
+    if (_.isError(err)) {
+      payload.tasks.errors = _.parseArray(payload.tasks.errors)
+      payload.tasks.errors.push({
+        current: payload.tasks.current,
+        errorMessage: err.message,
+        errorStack: _.stack()
+      })
+    }
+  },
+
   setResultTask = (payload, result) => {
     result = _.cloneDeep(result)
     payload.tasks.current.result = result
     if (payload.tasks.current.resultPath) {
       _.set(payload, payload.tasks.current.resultPath, result)
     }
-  }
+  },
+
+  list = {}
 
 module.exports = {
 
-  taskList,
+  list,
 
-  getPromise (tasks, payload = {}) {
+  getPromise (tasks, payload) {
     let promise = new Promise((resolve) => resolve())
     parsePayload(payload, tasks)
-    _.each(tasks, (task) => {
+    _.each(payload.tasks, (task) => {
       if (task.promiseCatch) {
         promise = promise.catch(taskCatchStart.bind(null, payload, task))
         promise = promise.then(taskCatchEnd.bind(null, payload, task))
@@ -132,17 +142,9 @@ module.exports = {
     return promise
   },
 
-  parseTasks (tasks) {
-    return _.map(tasks, (task) => {
-      return _.isEmpty(taskList[task.name])
-        ? task
-        : _.defaults(task, taskList[task.name])
-    })
-  },
-
-  registerTask (task) {
+  register (task) {
     if (isValidTask(task)) {
-      taskList[task.name] = task
+      list[task.name] = task
     } else {
       logger.err('invalid task', task)
     }

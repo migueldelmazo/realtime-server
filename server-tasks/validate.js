@@ -16,9 +16,9 @@ module.exports = {
   registerTasks () {
     server.registerTask({
       name: 'validate',
-      run () {
+      run (...args) {
         return new Promise((resolve, reject) => {
-          const isValid = server.runMethod(this.tasks.current.validator, arguments)
+          const isValid = server.runMethod(this.tasks.current.validator, ...args)
           if (isValid) {
             resolve()
           } else {
