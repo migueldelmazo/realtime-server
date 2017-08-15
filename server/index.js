@@ -1,4 +1,4 @@
-const _ = require('lodash'),
+const _ = require('./lodash'),
   bodyParser = require('body-parser'),
   express = require('express'),
   path = require('path'),
