@@ -56,29 +56,9 @@ const _ = require('lodash'),
 
   runTaskGetParams = (payload) => {
     const params = _.parseArray(payload.tasks.current.params)
-    return _.map(params, runTaskGetParamValue.bind(null, payload))
-  },
-
-  runTaskGetParamValue = (payload, param) => {
-    if (_.isArray(param)) {
-      return runTaskGetParamArray(payload, param)
-    } else if (_.isPlainObject(param)) {
-      return runTaskGetParamObject(payload, param)
-    } else if (_.isString(param)) {
-      return runTaskGetParamString(payload, param)
-    }
-    return param
-  },
-
-  runTaskGetParamArray = (payload, param) => {
-    return _.map(param, runTaskGetParamValue.bind(null, payload))
-  },
-
-  runTaskGetParamObject = (payload, param) => {
-    return _.reduce(param, (memo, value, key) => {
-      memo[key] = runTaskGetParamValue(payload, value)
-      return memo
-    }, {})
+    return _.mapDeep(params, (param) => {
+      return _.isString(param) ? runTaskGetParamString(payload, param) : param
+    })
   },
 
   runTaskGetParamString = (payload, param) => {
@@ -100,7 +80,7 @@ const _ = require('lodash'),
     if (_.isError(err)) {
       payload.tasks.errors = _.parseArray(payload.tasks.errors)
       payload.tasks.errors.push({
-        current: payload.tasks.current,
+        current: _.cloneDeep(payload.tasks.current),
         errorMessage: err.message,
         errorStack: _.stack()
       })
