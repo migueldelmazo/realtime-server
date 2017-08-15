@@ -97,10 +97,15 @@ const _ = require('lodash'),
   },
 
   checkError = (payload, err) => {
-    if (_.isError(err) && payload.tasks.current) {
-      payload.tasks.current.err = err
+    if (_.isError(err)) {
+      payload.tasks.errors = _.parseArray(payload.tasks.errors)
+      payload.tasks.errors.push({
+        current: payload.tasks.current,
+        errorMessage: err.message,
+        errorStack: _.stack()
+      })
     }
-  }
+  },
 
   isCurrentTask = (payload, task) => {
     return payload.tasks.current === task
