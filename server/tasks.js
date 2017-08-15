@@ -6,6 +6,7 @@ const _ = require('lodash'),
   // promise handlers
 
   taskCatchStart = (payload, task, result) => {
+    checkError(payload, result)
     setResultTask(payload, result)
     setStatusTask(payload, 'rejected')
     setCurrentTask(payload, task)
@@ -41,6 +42,7 @@ const _ = require('lodash'),
 
   promiseThen = (payload) => {
     logger.log('payload', _.omit(payload, ['req', 'res']))
+    console.log(_.get(payload, 'resData.status'), _.get(payload, 'resData.body'));
   },
 
   // run
@@ -88,6 +90,12 @@ const _ = require('lodash'),
   },
 
   // helpers
+
+  checkError = (payload, err) => {
+    if (_.isError(err) && payload.currentTask) {
+      payload.currentTask.err = err
+    }
+  }
 
   isCurrentTask = (payload, task) => {
     return payload.currentTask === task

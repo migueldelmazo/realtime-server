@@ -3,17 +3,23 @@ process.stdout.write('\033c')
 const http = require('http'),
   realtime = require('../realtime'),
   server = require('../server'),
-  serverRealtimeTasks = require('../server-tasks/realtime'),
-  serverResquestTasks = require('../server-tasks/request'),
-  serverResponseTasks = require('../server-tasks/response'),
+  mysqlTasks = require('../server-tasks/mysql'),
+  realtimeTasks = require('../server-tasks/realtime'),
+  resquestTasks = require('../server-tasks/request'),
+  responseTasks = require('../server-tasks/response'),
   validateTasks = require('../server-tasks/validate'),
+  utilsTasks = require('../server-tasks/utils'),
   user = require('./user')
 
-// server common
-serverRealtimeTasks.registerTasks()
-serverResquestTasks.registerTasks()
-serverResponseTasks.registerTasks()
+// server tasks
+mysqlTasks.registerTasks()
+realtimeTasks.registerTasks()
+resquestTasks.registerTasks()
+responseTasks.registerTasks()
 validateTasks.registerMethods()
+utilsTasks.registerTasks()
+
+// server methods
 validateTasks.registerTasks()
 
 // server endpoints
@@ -35,6 +41,6 @@ setTimeout(() => {
     hostname: 'localhost',
     method: 'get',
     port: '8090',
-    path: '/user/login?email=info@migueldelmazo.com'
+    path: '/user/login?email=info@migueldelmazo.com&password=12345678'
   }).end()
 }, 500)
