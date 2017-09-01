@@ -55,18 +55,12 @@ const _ = require('lodash'),
 
   runTaskGetParams = (payload) => {
     const params = _.parseArray(payload.tasks.current.params)
-    return _.mapDeep(params, (param) => {
-      return _.isString(param) ? runTaskGetParamString(payload, param) : param
+    return _.map(params, (param) => {
+      debugger;
+      const obj = _.parseStringToObject(param, payload)
+      param = obj === undefined ? param : obj
+      return _.isString(param) ? _.parseStringValues(param, payload) : param
     })
-  },
-
-  runTaskGetParamString = (payload, param) => {
-    const regex = new RegExp(/{{[a-zA-Z_.]*}}/g),
-      paramMatches = param.match(regex)
-    return _.reduce(paramMatches, (memo, match) => {
-      const path = match.substr(2, match.length - 4)
-      return memo.replace(match, _.get(payload, path))
-    }, param)
   },
 
   // helpers

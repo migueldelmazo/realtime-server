@@ -37,9 +37,11 @@ server.start({
 })
 
 // fake
-server.runMethod('request.send', {
-  hostname: 'localhost',
-  method: 'get',
-  port: '8090',
-  path: '/user/login?email=info@migueldelmazo.com&password=12345678'
-})
+setTimeout(() => {
+  server.runMethod('request.send', {
+    hostname: 'localhost',
+    method: 'get',
+    port: '8090',
+    path: '/user/login?email=info@migueldelmazo.com&password=12345678'
+  })
+}, 500)

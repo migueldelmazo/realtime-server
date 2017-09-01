@@ -50,7 +50,7 @@ module.exports = {
       },
       {
         name: 'realtime.send',
-        params: { user: 'logged' }
+        params: '{user}'
       }
     ])
   }

@@ -23,6 +23,30 @@ _.mixin({
     return _.isArray(arr) ? arr : [arr]
   },
 
+  parseStringToObject (str, context) {
+    if (_.isString(str)) {
+      const regex = new RegExp(/^{[a-zA-Z_.]*}$/g),
+        matches = str.match(regex)
+      if (matches) {
+        const path = matches[0].substr(1, matches[0].length - 2)
+        return _.get(context, path)
+      } else {
+        return undefined
+      }
+    }
+  },
+
+  parseStringValues (str, context) {
+    if (_.isString(str)) {
+      const regex = new RegExp(/{{[a-zA-Z_.]*}}/g),
+        matches = str.match(regex)
+      return _.reduce(matches, (memo, match) => {
+        const path = match.substr(2, match.length - 4)
+        return memo.replace(match, _.get(context, path))
+      }, str)
+    }
+  },
+
   stack (removeLevels = 1) {
     const stack = new Error().stack,
       stackArr = stack.split('\n')
