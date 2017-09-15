@@ -56,7 +56,6 @@ const _ = require('lodash'),
   runTaskGetParams = (payload) => {
     const params = _.parseArray(payload.tasks.current.params)
     return _.map(params, (param) => {
-      debugger;
       const obj = _.parseStringToObject(param, payload)
       param = obj === undefined ? param : obj
       return _.isString(param) ? _.parseStringValues(param, payload) : param
