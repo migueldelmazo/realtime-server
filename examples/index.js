@@ -1,8 +1,7 @@
 process.stdout.write('\033c')
 
 const realtime = require('../realtime'),
-  server = require('../server'),
-  userEndpoint = require('./user')
+  server = require('../server')
 
 // register config, methods and tasks
 require('../server-tasks/mysql')
@@ -13,7 +12,7 @@ require('../server-tasks/utils')
 require('../server-tasks/validate')
 
 // server endpoints
-userEndpoint.addLogin()
+require('./user')
 
 // config: realtime
 realtime.start({
