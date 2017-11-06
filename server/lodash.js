@@ -2,22 +2,6 @@ const _ = require('lodash')
 
 _.mixin({
 
-  mapDeep (data, method, cache = []) {
-    if (_.isArray(data) && cache.indexOf(data) < 0) {
-      cache.push(data)
-      return _.map(data, (value) => {
-        return _.mapDeep(value, method, cache)
-      })
-    } else if (_.isPlainObject(data) && cache.indexOf(data) < 0) {
-      cache.push(data)
-      return _.reduce(data, (memo, value, key) => {
-        memo[key] = _.mapDeep(value, method, cache)
-        return memo
-      }, {})
-    }
-    return method(data)
-  },
-
   parseArray (arr) {
     arr = arr || []
     return _.isArray(arr) ? arr : [arr]
@@ -30,8 +14,6 @@ _.mixin({
       if (matches) {
         const path = matches[0].substr(1, matches[0].length - 2)
         return _.get(context, path)
-      } else {
-        return undefined
       }
     }
   },
