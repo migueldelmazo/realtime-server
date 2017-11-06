@@ -2,25 +2,15 @@ process.stdout.write('\033c')
 
 const realtime = require('../realtime'),
   server = require('../server'),
-  mysqlHelpers = require('../server-tasks/mysql'),
-  realtimeHelpers = require('../server-tasks/realtime'),
-  requestHelpers = require('../server-tasks/request'),
-  responseHelpers = require('../server-tasks/response'),
-  validateHelpers = require('../server-tasks/validate'),
-  utilsHelpers = require('../server-tasks/utils'),
   userEndpoint = require('./user')
 
-// server methods
-requestHelpers.registerMethods()
-validateHelpers.registerMethods()
-
-// server tasks
-mysqlHelpers.registerTasks()
-realtimeHelpers.registerTasks()
-requestHelpers.registerTasks()
-responseHelpers.registerTasks()
-utilsHelpers.registerTasks()
-validateHelpers.registerTasks()
+// register config, methods and tasks
+require('../server-tasks/mysql')
+require('../server-tasks/realtime')
+require('../server-tasks/request')
+require('../server-tasks/response')
+require('../server-tasks/utils')
+require('../server-tasks/validate')
 
 // server endpoints
 userEndpoint.addLogin()

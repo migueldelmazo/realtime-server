@@ -76,38 +76,29 @@ const _ = require('lodash'),
     }
   }
 
-module.exports = {
+server.registerMethod('request.send', (endpoint) => {
+  return new Promise((resolve, reject) => {
+    sendParseDataEndpoint(endpoint, resolve, reject)
+    const request = sendGetRequest(endpoint)
+    sendListenError(request, endpoint)
+    sendWriteBody(request, endpoint)
+    request.end()
+  })
+})
 
-
-  registerMethods () {
-    server.registerMethod('request.send', (endpoint) => {
-      return new Promise((resolve, reject) => {
-        sendParseDataEndpoint(endpoint, resolve, reject)
-        const request = sendGetRequest(endpoint)
-        sendListenError(request, endpoint)
-        sendWriteBody(request, endpoint)
-        request.end()
-      })
-    })
-  },
-
-  registerTasks () {
-    server.registerTask({
-      name: 'request.getData',
-      resultPath: 'reqData',
-      run () {
-        return {
-          body: this.req.body || {},
-          params: this.req.params,
-          query: this.req.query
-        }
-      }
-    })
-
-    server.registerTask({
-      name: 'request.send',
-      run: 'request.send'
-    })
+server.registerTask({
+  name: 'request.getData',
+  resultPath: 'reqData',
+  run () {
+    return {
+      body: this.req.body || {},
+      params: this.req.params,
+      query: this.req.query
+    }
   }
+})
 
-}
+server.registerTask({
+  name: 'request.send',
+  run: 'request.send'
+})
